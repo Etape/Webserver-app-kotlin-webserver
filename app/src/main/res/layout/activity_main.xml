@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:background="#ffa">
+
+    <Button
+        android:layout_marginVertical="10dp"
+        android:id="@+id/start_server"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="START SERVER"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:background="#00F"
+        android:textColor="#fff"
+        android:gravity="center"/>
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_margin="10dp"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#000"
+        android:hint="message"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="5dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send To : "
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textColor="#000"/>
+        <Button
+            android:id="@+id/sendMessagetoall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="All"
+            android:layout_weight="1"
+            android:paddingHorizontal="20dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#080"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/sendMessageto1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ID0001"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:backgroundTint="#080"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/sendMessageto2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ID0002"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:backgroundTint="#080"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/sendMessageto3"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="ID0003"
+            android:layout_gravity="center"
+            android:backgroundTint="#080"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/answer"
+            android:layout_marginHorizontal="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000"
+            android:textColor="#fff"
+            android:text="Waiting ..."
+            android:padding="5dp" />
+    </ScrollView>
+</LinearLayout>
