@@ -1,34 +1,27 @@
 package com.rogg.webserver_kt
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_main.*
-import spark.Spark.*
 import spark.Request
 import spark.Response
 import spark.Route
 import spark.Service
-import android.text.format.Formatter.formatIpAddress
-import android.content.Context.WIFI_SERVICE
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Color
-import android.support.v4.content.ContextCompat.getSystemService
-import android.net.wifi.WifiManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Build
-import android.os.PowerManager
-import android.support.v4.app.NotificationCompat
-import android.text.format.Formatter
-import android.support.v4.content.ContextCompat.getSystemService
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.*
@@ -46,6 +39,23 @@ class MainActivity : AppCompatActivity() {
     var ips:EditText?=null
     var mess:EditText?=null
     var serverstate:Boolean=false
+    var mBound:Boolean=false
+    private lateinit var mService: Service_server
+
+    private val connection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            // when the service is connected, get its instance
+            val binder = service as Service_server.MyBinder
+            mService = binder.getService()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            // service disconnected
+            mBound = false
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cancelNotification(this)
@@ -59,23 +69,20 @@ class MainActivity : AppCompatActivity() {
         startButton=findViewById(R.id.start_server)
         val ip=getIPAddress(true)
 
-        var myHttpServer = MyHttpServer()
         startButton!!.setOnClickListener(View.OnClickListener {
             serverstate=!serverstate
-            if (serverstate){
+            if (serverstate && mBound){
+                mService.startServer()
                 answer!!.text=answer!!.text.toString()+"\n Server Starting ..."
-                myHttpServer.start()
                 answer!!.text=answer!!.text.toString()+"\n Http server running on : "+ip+":1337/"
-                createNotification("Server running ...")
                 startButton!!.text="STOP SERVER"
                 startButton!!.setBackgroundColor(Color.RED)
             }
             else{
-                myHttpServer!!.stop()
+                mService.stopServer()
                 startButton!!.text="START SERVER"
                 answer!!.text=answer!!.text.toString()+"\n Server Stopped "
                 startButton!!.setBackgroundColor(Color.BLUE)
-                cancelNotification(this)
             }
         })
         sendMessage!!.setOnClickListener(View.OnClickListener {
@@ -88,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             }
             else{
                 responseBody="Message#"+mess!!.text.toString()+"#To#"+"*"+"#time#" + (System.currentTimeMillis()/1000).toString()
-                myHttpServer.setRoute(responseBody)
+                mService.setRoute(responseBody)
                 answer!!.text=answer!!.text.toString()+"\n posting message : "+mess!!.text.toString()+"\n To : everyone"
             }
         })
@@ -103,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             }
             else{
                 responseBody="Message#"+mess!!.text.toString()+"#To#"+"ID0001"+"#time#" + (System.currentTimeMillis()/1000).toString()
-                myHttpServer.setRoute(responseBody)
+                mService.setRoute(responseBody)
                 answer!!.text=answer!!.text.toString()+"\n posting message : "+mess!!.text.toString()+"\n To : ID0001"
             }
 
@@ -118,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             }
             else{
                 responseBody="Message#"+mess!!.text.toString()+"#To#"+"ID0002"+"#time#" + (System.currentTimeMillis()/1000).toString()
-                myHttpServer.setRoute(responseBody)
+                mService.setRoute(responseBody)
                 answer!!.text=answer!!.text.toString()+"\n posting message : "+mess!!.text.toString()+"\n To : ID0002"
             }
         })
@@ -133,46 +140,12 @@ class MainActivity : AppCompatActivity() {
             }
             else{
                 responseBody="Message#"+mess!!.text.toString()+"#To#"+"ID0003"+"#time#" + (System.currentTimeMillis()/1000).toString()
-                myHttpServer.setRoute(responseBody)
+                mService.setRoute(responseBody)
                 answer!!.text=answer!!.text.toString()+"\n posting message : "+mess!!.text.toString()+"\n To : ID0003"
             }
 
         })
 
-    }
-    class MyHttpServer{
-        companion object{
-            var instance = MyHttpServer()
-            var httpService = Service.ignite()
-            val port = 1337
-        }
-
-        init {
-            httpService = Service.ignite()
-            httpService.port(port)
-            httpService.threadPool(350)
-            httpService.internalServerError("Error : 500 internal error")
-
-        }
-
-        fun start() {
-            httpService.get("/", MyHttpRoute("Welcome to our discussion server"))
-            Log.i("Server","Http server running on : "+port)
-        }
-        fun setRoute(body: String) {
-            stop()
-            MyHttpServer()
-            httpService.get("/", MyHttpRoute(body))
-        }
-
-        fun stop() {httpService.stop()}
-    }
-    class MyHttpRoute(var body:String) : Route {
-        override fun handle(request: Request, response: Response): Any {
-            var respBody = body
-            response.body(respBody)
-            return response.body()
-        }
     }
 
     private fun createNotification(message: String) {
@@ -236,18 +209,15 @@ class MainActivity : AppCompatActivity() {
         notificationManager.cancel(0)
     }
 
-    override fun onStop() {
-        super.onStop()
-        cancelNotification(this)
-    }
-    override fun onRestart() {
-        super.onRestart()
-        cancelNotification(this)
-    }
+    override fun onStart() {
+        super.onStart()
+        val intentBind = Intent(this, Service_server::class.java)
+        bindService(intentBind, connection, Context.BIND_AUTO_CREATE)
 
+    }
     override fun onResume() {
         super.onResume()
         if (serverstate)
-            createNotification("Server running ...")
+            mService.createNotification(" Http server running on : "+mService.ip+":1337/")
     }
 }
