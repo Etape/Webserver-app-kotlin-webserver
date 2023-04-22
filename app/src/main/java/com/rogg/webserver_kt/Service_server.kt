@@ -18,12 +18,15 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.Collections
 
-class Service_server : Service() {
+class Service_server() : Service() {
 
     val ip=getIPAddress(true)
-    var myHttpServer = MyHttpServer()
+    lateinit var activity:MainActivity
+    lateinit var myHttpServer: MyHttpServer
     var binder=MyBinder()
-
+    fun initialize(){
+        myHttpServer=MyHttpServer(activity)
+    }
     inner class MyBinder : Binder() {
         fun getService(): Service_server = this@Service_server
     }
@@ -33,6 +36,14 @@ class Service_server : Service() {
     }
     fun stopServer(){
         myHttpServer.stop()
+        cancelNotification(this)
+    }
+    fun startScan(){
+        myHttpServer.startScan()
+        createNotification(" Http Scanning clients on : "+ip+":1337/scan")
+    }
+    fun stopScan(){
+        myHttpServer.stopScan()
         cancelNotification(this)
     }
     fun setRoute(body:String){

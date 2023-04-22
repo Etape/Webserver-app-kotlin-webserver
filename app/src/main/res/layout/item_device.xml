@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp">
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/baseline_phone_android_24"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"/>
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Device Name"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="60dp"/>
+        <TextView
+            android:id="@+id/desc"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:text="id:#######  ip:###.###.###.###"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="60dp"/>
+
+        <ImageView
+            android:id="@+id/add"
+            android:src="@drawable/baseline_add_24"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:padding="15dp"/>
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
